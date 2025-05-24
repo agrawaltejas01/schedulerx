@@ -73,3 +73,5 @@ This mini-project is designed to assess your ability to design and implement a s
 ---
 
 Feel free to reach out if you have any clarifications or questions!
+
+## [Solution Doc](https://docs.google.com/document/d/1dCkr0VLUiavmnmC9e_suGbYJ1HyLiGetVNkESdHc47w/edit?tab=t.0)
