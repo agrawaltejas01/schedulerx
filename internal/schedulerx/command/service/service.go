@@ -82,3 +82,33 @@ func (s *Service) GetCommand(ctx context.Context, cmd string) (commandModel.Comm
 
 	return command, nil
 }
+
+func (s *Service) GetAllActiveCommands(ctx context.Context) ([]commandModel.Command, error) {
+	commands, err := s.Repo.GetAllActiveCommands(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	allCmds := make([]string, 0)
+	cmdToIndex := make(map[string]int)
+	for _, command := range commands {
+		allCmds = append(allCmds, command.Command)
+		command.Params = make([]string, 0)
+		cmdToIndex[command.Command] = len(allCmds) - 1
+	}
+
+	params, err := s.Repo.GetParamsForMultipleCommands(ctx, allCmds)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, param := range params {
+		if index, exists := cmdToIndex[param.Command]; exists {
+			commands[index].Params = append(commands[index].Params, param.Param)
+		} else {
+			return nil, err
+		}
+	}
+
+	return commands, nil
+}

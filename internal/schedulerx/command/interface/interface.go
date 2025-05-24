@@ -11,6 +11,8 @@ type Repo interface {
 	CreateParams(ctx context.Context, params []commandModel.Params) ([]commandModel.Params, error)
 	GetCommand(ctx context.Context, cmd string) (commandModel.Command, error)
 	GetParams(ctx context.Context, cmd string) ([]commandModel.Params, error)
+	GetAllActiveCommands(ctx context.Context) ([]commandModel.Command, error)
+	GetParamsForMultipleCommands(ctx context.Context, cmds []string) ([]commandModel.Params, error)
 }
 
 type Service interface {
@@ -18,4 +20,5 @@ type Service interface {
 	CreateCommand(ctx context.Context,
 		command commandModel.Command) (cmdModel commandModel.Command, err error)
 	GetCommand(ctx context.Context, cmd string) (commandModel.Command, error)
+	GetAllActiveCommands(ctx context.Context) ([]commandModel.Command, error)
 }
