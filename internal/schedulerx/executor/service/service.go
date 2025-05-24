@@ -1,0 +1,79 @@
+package executor_service
+
+import (
+	"context"
+	"fmt"
+	"math/rand"
+	"time"
+
+	jobInterface "github.com/agrawaltejas01/schedulerx/internal/schedulerx/job/interface"
+	jobModel "github.com/agrawaltejas01/schedulerx/internal/schedulerx/job/model"
+	jobService "github.com/agrawaltejas01/schedulerx/internal/schedulerx/job/service"
+)
+
+type Service struct {
+	jobService jobInterface.JobService
+}
+
+func NewService() *Service {
+	return &Service{
+		jobService: jobService.NewService(),
+	}
+}
+
+const (
+	RANGE = 5 * time.Second
+)
+
+func randomiser() int {
+	max := 2
+	min := 1
+	return rand.Intn(max-min) + min
+}
+
+func execute(job jobModel.Job) error {
+
+	fmt.Printf("Executing job: %s with params: %s\n", job.Command, job.Params)
+
+	if randomiser() == 1 {
+		return fmt.Errorf("simulated error executing job %s", job.ID)
+	}
+	return nil
+
+}
+
+func (s *Service) Execute(ctx context.Context) error {
+
+	scheduleEndAt := time.Now()
+	// subtract 5 seconds
+
+	scheduleStartAt := scheduleEndAt.Add(-RANGE)
+
+	jobs, err := s.jobService.GetScheduledJobsAndMarkPicked(ctx, scheduleStartAt.Unix(), scheduleEndAt.Unix())
+	if err != nil {
+		return err
+	}
+
+	for _, job := range jobs {
+
+		job.StartedAt = time.Now().Unix()
+		err := execute(job)
+		job.EndedAt = time.Now().Unix()
+		if err != nil {
+			job.Status = jobModel.STATUS_FAILED
+			fmt.Printf("Error executing job %s: %s\n", job.ID, err.Error())
+		} else {
+			job.Status = jobModel.STATUS_COMPLETED
+		}
+
+		err = s.jobService.UpdateAfterExecution(ctx, job)
+		if err != nil {
+			fmt.Printf("Error updating job %s after execution: %s\n", job.ID, err.Error())
+			continue
+		}
+
+	}
+
+	fmt.Println("Jobs to execute:", jobs)
+	return nil
+}
