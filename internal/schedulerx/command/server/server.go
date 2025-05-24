@@ -6,11 +6,22 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	cmdInterface "github.com/agrawaltejas01/schedulerx/internal/schedulerx/command/interface"
 	commandModel "github.com/agrawaltejas01/schedulerx/internal/schedulerx/command/model"
 	commandService "github.com/agrawaltejas01/schedulerx/internal/schedulerx/command/service"
 )
 
-func CommandRoutes(router *gin.Engine) *gin.Engine {
+type CmdServer struct {
+	commandService cmdInterface.Service
+}
+
+func NewCmdServer() *CmdServer {
+	return &CmdServer{
+		commandService: commandService.NewService(),
+	}
+}
+
+func (s *CmdServer) CommandRoutes(router *gin.Engine) *gin.Engine {
 	commandRouter := router.Group("/command")
 
 	commandRouter.POST("/create", func(ctx *gin.Context) {
@@ -20,7 +31,7 @@ func CommandRoutes(router *gin.Engine) *gin.Engine {
 			return
 		}
 
-		_, err := commandService.CreateCommand(ctx, command)
+		_, err := s.commandService.CreateCommand(ctx, command)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -33,7 +44,7 @@ func CommandRoutes(router *gin.Engine) *gin.Engine {
 	commandRouter.GET("/:command", func(ctx *gin.Context) {
 		cmd := ctx.Param("command")
 
-		command, err := commandService.GetCommand(ctx, cmd)
+		command, err := s.commandService.GetCommand(ctx, cmd)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

@@ -8,7 +8,13 @@ import (
 	dbUtils "github.com/agrawaltejas01/schedulerx/internal/utils/database"
 )
 
-func CreateCommand(ctx context.Context, command commandModel.Command) (commandModel.Command, error) {
+type CmdRepo struct{}
+
+func NewCmdRepo() *CmdRepo {
+	return &CmdRepo{}
+}
+
+func (c *CmdRepo) CreateCommand(ctx context.Context, command commandModel.Command) (commandModel.Command, error) {
 	txn := dbUtils.GetTxnOrDb(ctx)
 	err := txn.Create(&command).Error
 	if err != nil {
@@ -18,7 +24,7 @@ func CreateCommand(ctx context.Context, command commandModel.Command) (commandMo
 	return command, nil
 }
 
-func CreateParams(ctx context.Context, params []commandModel.Params) ([]commandModel.Params, error) {
+func (c *CmdRepo) CreateParams(ctx context.Context, params []commandModel.Params) ([]commandModel.Params, error) {
 	txn := dbUtils.GetTxnOrDb(ctx)
 	err := txn.Create(&params).Error
 	if err != nil {
@@ -28,7 +34,7 @@ func CreateParams(ctx context.Context, params []commandModel.Params) ([]commandM
 	return params, nil
 }
 
-func GetCommand(ctx context.Context, cmd string) (commandModel.Command, error) {
+func (c *CmdRepo) GetCommand(ctx context.Context, cmd string) (commandModel.Command, error) {
 	txn := dbUtils.GetTxnOrDb(ctx)
 	var command commandModel.Command
 	err := txn.Where("command = ?", cmd).First(&command).Error
@@ -39,7 +45,7 @@ func GetCommand(ctx context.Context, cmd string) (commandModel.Command, error) {
 	return command, nil
 }
 
-func GetParams(ctx context.Context, cmd string) ([]commandModel.Params, error) {
+func (c *CmdRepo) GetParams(ctx context.Context, cmd string) ([]commandModel.Params, error) {
 	txn := dbUtils.GetTxnOrDb(ctx)
 	var command []commandModel.Params
 	err := txn.Model(commandModel.Params{}).Where("command = ?", cmd).Scan(&command).Error
