@@ -1,0 +1,16 @@
+package model
+
+			import (
+				"time"
+
+				"gorm.io/gorm"
+			)
+
+			type Command struct {
+				ID        uint           `json:"id" gorm:"primaryKey"`
+				Cron      string         `json:"cron"`
+				Active    bool           `json:"active" gorm:"active"`
+				CreatedAt time.Time      `json:"created_at"`
+				UpdatedAt time.Time      `json:"updated_at"`
+				DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
+			}
