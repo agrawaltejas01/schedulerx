@@ -9,7 +9,11 @@ import (
 	job_server "github.com/agrawaltejas01/schedulerx/internal/schedulerx/job/server"
 )
 
-func Routes() *gin.Engine {
+func RegisterCmdServer() *command_server.CmdServer {
+	return command_server.NewCmdServer()
+}
+
+func ServerRoutes() *gin.Engine {
 	router := gin.Default()
 
 	router.Use(corsMiddleware())
@@ -18,7 +22,9 @@ func Routes() *gin.Engine {
 		ctx.JSON(http.StatusOK, gin.H{"status": "OK"})
 	})
 
-	command_server.CommandRoutes(router)
+	cmdServer := RegisterCmdServer()
+
+	cmdServer.CommandRoutes(router)
 	job_server.JobRoutes(router)
 	return router
 }

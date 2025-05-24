@@ -8,7 +8,13 @@ import (
 	dbUtils "github.com/agrawaltejas01/schedulerx/internal/utils/database"
 )
 
-func CreateCommand(ctx context.Context, command commandModel.Command) (commandModel.Command, error) {
+type CmdRepo struct{}
+
+func NewCmdRepo() *CmdRepo {
+	return &CmdRepo{}
+}
+
+func (c *CmdRepo) CreateCommand(ctx context.Context, command commandModel.Command) (commandModel.Command, error) {
 	txn := dbUtils.GetTxnOrDb(ctx)
 	err := txn.Create(&command).Error
 	if err != nil {
@@ -18,7 +24,7 @@ func CreateCommand(ctx context.Context, command commandModel.Command) (commandMo
 	return command, nil
 }
 
-func CreateParams(ctx context.Context, params []commandModel.Params) ([]commandModel.Params, error) {
+func (c *CmdRepo) CreateParams(ctx context.Context, params []commandModel.Params) ([]commandModel.Params, error) {
 	txn := dbUtils.GetTxnOrDb(ctx)
 	err := txn.Create(&params).Error
 	if err != nil {
@@ -28,7 +34,7 @@ func CreateParams(ctx context.Context, params []commandModel.Params) ([]commandM
 	return params, nil
 }
 
-func GetCommand(ctx context.Context, cmd string) (commandModel.Command, error) {
+func (c *CmdRepo) GetCommand(ctx context.Context, cmd string) (commandModel.Command, error) {
 	txn := dbUtils.GetTxnOrDb(ctx)
 	var command commandModel.Command
 	err := txn.Where("command = ?", cmd).First(&command).Error
@@ -39,13 +45,36 @@ func GetCommand(ctx context.Context, cmd string) (commandModel.Command, error) {
 	return command, nil
 }
 
-func GetParams(ctx context.Context, cmd string) ([]commandModel.Params, error) {
+func (c *CmdRepo) GetParams(ctx context.Context, cmd string) ([]commandModel.Params, error) {
 	txn := dbUtils.GetTxnOrDb(ctx)
-	var command []commandModel.Params
-	err := txn.Model(commandModel.Params{}).Where("command = ?", cmd).Scan(&command).Error
+	var params []commandModel.Params
+	err := txn.Model(commandModel.Params{}).Where("command = ?", cmd).Scan(&params).Error
 	if err != nil {
 		fmt.Println("Error in Repo Layer for Get Command")
 		return []commandModel.Params{}, err
 	}
-	return command, nil
+	return params, nil
+}
+
+func (c *CmdRepo) GetAllActiveCommands(ctx context.Context) ([]commandModel.Command, error) {
+	txn := dbUtils.GetTxnOrDb(ctx)
+	var commands []commandModel.Command
+	err := txn.Where("active = ?", true).Find(&commands).Error
+	if err != nil {
+		fmt.Println("Error in Repo Layer for Get All Active Commands")
+		return nil, err
+	}
+	return commands, nil
+}
+
+func (c *CmdRepo) GetParamsForMultipleCommands(ctx context.Context, cmds []string) ([]commandModel.Params, error) {
+	txn := dbUtils.GetTxnOrDb(ctx)
+	var params []commandModel.Params
+	err := txn.Model(commandModel.Params{}).Where("command in ?", cmds).Scan(&params).Error
+	if err != nil {
+		fmt.Println("Error in Repo Layer for Get Params For Multiple Commands")
+		return nil, err
+	}
+
+	return params, nil
 }

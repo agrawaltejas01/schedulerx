@@ -25,7 +25,7 @@ func init() {
 }
 
 func main() {
-	router := server.Routes()
+	router := server.ServerRoutes()
 
 	PORT := ":" + os.Getenv("PORT")
 
