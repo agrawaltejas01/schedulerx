@@ -7,6 +7,7 @@ import (
 	"time"
 
 	cmdInterface "github.com/agrawaltejas01/schedulerx/internal/schedulerx/command/interface"
+	commandModel "github.com/agrawaltejas01/schedulerx/internal/schedulerx/command/model"
 	cmdService "github.com/agrawaltejas01/schedulerx/internal/schedulerx/command/service"
 	jobInterface "github.com/agrawaltejas01/schedulerx/internal/schedulerx/job/interface"
 	jobModel "github.com/agrawaltejas01/schedulerx/internal/schedulerx/job/model"
@@ -27,13 +28,7 @@ func NewService() *Service {
 	}
 }
 
-func (s *Service) Schedule(ctx context.Context) error {
-	// Read the schedule from the database
-	activeCmds, err := s.cmdService.GetAllActiveCommands(ctx)
-	if err != nil {
-		panic("Error in getting active commands: " + err.Error())
-	}
-
+func (s *Service) Command(ctx context.Context, activeCmds []commandModel.Command) error {
 	jobs := make([]jobModel.Job, 0)
 
 	for _, cmd := range activeCmds {
@@ -53,11 +48,21 @@ func (s *Service) Schedule(ctx context.Context) error {
 		}
 	}
 
-	_, err = s.jobService.CreateJobs(ctx, jobs)
+	_, err := s.jobService.CreateJobs(ctx, jobs)
 	if err != nil {
 		fmt.Printf("Error in creating jobs: %s\n", err.Error())
 	}
 
 	return nil
+}
+
+func (s *Service) Schedule(ctx context.Context) error {
+	// Read the schedule from the database
+	activeCmds, err := s.cmdService.GetAllActiveCommands(ctx)
+	if err != nil {
+		panic("Error in getting active commands: " + err.Error())
+	}
+
+	return s.Command(ctx, activeCmds)
 
 }

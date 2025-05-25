@@ -26,17 +26,18 @@ const (
 	RANGE = 5 * time.Second
 )
 
-func randomiser() int {
-	max := 2
-	min := 1
-	return rand.Intn(max-min) + min
+func randomiser() bool {
+	max := 10
+	min := 0
+	randInt := rand.Intn(max-min) + min
+	return randInt%2 == 0
 }
 
 func execute(job jobModel.Job) error {
 
 	fmt.Printf("Executing job: %s with params: %s\n", job.Command, job.Params)
 
-	if randomiser() == 1 {
+	if randomiser() {
 		return fmt.Errorf("simulated error executing job %s", job.ID)
 	}
 	return nil
