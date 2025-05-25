@@ -69,3 +69,7 @@ func (s *Service) UpdateAfterExecution(ctx context.Context, job jobModels.Job) e
 
 	return nil
 }
+
+func (s *Service) GetJobsByCommand(ctx context.Context, command string) ([]jobModels.Job, error) {
+	return s.repo.GetJobsByCommand(ctx, command)
+}

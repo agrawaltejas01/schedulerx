@@ -11,10 +11,12 @@ type JobRepo interface {
 	GetScheduledJobs(ctx context.Context, scheduleStart, scheduleEnd int64) ([]jobModels.Job, error)
 	UpdateStatus(ctx context.Context, jobIds []string, status string) error
 	UpdateAfterExecution(ctx context.Context, job jobModels.Job) error
+	GetJobsByCommand(ctx context.Context, command string) ([]jobModels.Job, error)
 }
 
 type JobService interface {
 	CreateJobs(ctx context.Context, job []jobModels.Job) ([]jobModels.Job, error)
 	GetScheduledJobsAndMarkPicked(ctx context.Context, scheduleStart, scheduleEnd int64) ([]jobModels.Job, error)
 	UpdateAfterExecution(ctx context.Context, job jobModels.Job) error
+	GetJobsByCommand(ctx context.Context, command string) ([]jobModels.Job, error)
 }

@@ -73,3 +73,21 @@ func (j *JobRepo) UpdateAfterExecution(ctx context.Context, job jobModels.Job) e
 	}
 	return nil
 }
+
+func (s *JobRepo) GetJobsByCommand(ctx context.Context, command string) ([]jobModels.Job, error) {
+	txn := dbUtils.GetTxnOrDb(ctx)
+	var jobs []jobModels.Job
+
+	err := txn.Model(&jobModels.Job{}).
+		Where("command = ?", command).
+		Scan(&jobs).
+		Order("schedule desc").
+		Error
+	if err != nil {
+		fmt.Println("Error in Repo Layer for Get Jobs By Command")
+		return []jobModels.Job{}, err
+	}
+
+	return jobs, nil
+
+}
