@@ -6,7 +6,7 @@ import (
 	"time"
 
 	db "github.com/agrawaltejas01/schedulerx/internal/database"
-	schedulerService "github.com/agrawaltejas01/schedulerx/internal/schedulerx/scheduler/service"
+	executorService "github.com/agrawaltejas01/schedulerx/internal/schedulerx/executor/service"
 	"github.com/joho/godotenv"
 )
 
@@ -29,24 +29,24 @@ const (
 	RUN_ON = 5 * time.Second
 )
 
-func schedule(ctx context.Context, schedulerService *schedulerService.Service) {
-	err := schedulerService.Schedule(ctx)
+func execute(ctx context.Context, service *executorService.Service) {
+	err := service.Execute(ctx)
 	if err != nil {
 		fmt.Println("Error in starting the scheduler service: " + err.Error())
 	}
 }
 
 func main() {
-	schedulerService := schedulerService.NewService()
+	executorService := executorService.NewService()
 	ctx := context.Background()
 
 	ticker := time.NewTicker(RUN_ON)
 	defer ticker.Stop()
 
 	// First run to ensure the scheduler starts immediately
-	schedule(ctx, schedulerService)
+	execute(ctx, executorService)
 
 	for range ticker.C {
-		schedule(ctx, schedulerService)
+		execute(ctx, executorService)
 	}
 }
