@@ -35,13 +35,11 @@ func main() {
 	executorFreq := 5 * time.Second
 
 	schedulerx.NewSchedulerX(ctx, schedulerFreq, executorFreq, &schedulerx.DBConfig{
-		Config: db.DBConfig{
-			Host:         os.Getenv("DB_HOST"),
-			Port:         os.Getenv("DB_PORT"),
-			Username:     os.Getenv("DB_USERNAME"),
-			Password:     os.Getenv("DB_PASSWORD"),
-			DatabaseName: os.Getenv("DB_NAME"),
-		},
+		Host:         os.Getenv("DB_HOST"),
+		Port:         os.Getenv("DB_PORT"),
+		Username:     os.Getenv("DB_USERNAME"),
+		Password:     os.Getenv("DB_PASSWORD"),
+		DatabaseName: os.Getenv("DB_NAME"),
 	})
 
 	router := server.ServerRoutes()
