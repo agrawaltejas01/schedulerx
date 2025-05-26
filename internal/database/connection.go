@@ -13,23 +13,13 @@ import (
 
 var Database *gorm.DB
 
-func Connect() {
+func Connect(config *DBConfig) {
 	var err error
 
-	userName := "user"
-	password := "password"
-	host := "localhost"
-	databaseName := "db"
-	port := "3306"
-
-	// userName := os.Getenv("DB_USER")
-	// password := os.Getenv("DB_PASS")
-	// host := os.Getenv("DB_HOST")
-	// databaseName := os.Getenv("DB_NAME")
-	// port := os.Getenv("DB_PORT")
+	dbConfig := GetDBConfig(config)
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		userName, password, host, port, databaseName)
+		dbConfig.Username, dbConfig.Password, dbConfig.Host, dbConfig.Port, dbConfig.DatabaseName)
 
 	Database, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		PrepareStmt: true,

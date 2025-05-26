@@ -28,6 +28,10 @@ type SchedulerX struct {
 	ExecutorFreq  time.Duration
 }
 
+type DBConfig struct {
+	Config db.DBConfig
+}
+
 func startScheduler(ctx context.Context, freq time.Duration,
 	schedulerService schedulerInterface.SchedulerService) {
 
@@ -70,8 +74,11 @@ func startExecutor(ctx context.Context, freq time.Duration,
 
 }
 
-func NewSchedulerX(ctx context.Context, schedulerFreq, executorFreq time.Duration) *SchedulerX {
-	db.Connect()
+// NewSchedulerX initializes a new SchedulerX instance with the provided context, scheduler frequency,
+// executor frequency, and database configuration. It connects to the database, migrates the schema,
+// and starts the scheduler and executor services in separate goroutines.
+func NewSchedulerX(ctx context.Context, schedulerFreq, executorFreq time.Duration, dbConfig *DBConfig) *SchedulerX {
+	db.Connect(&dbConfig.Config)
 	db.Migrate()
 	instance := &SchedulerX{
 		scheduler:     schedulerService.NewService(),

@@ -13,7 +13,7 @@ import (
 )
 
 func connectDb() {
-	db.Connect()
+	db.Connect(nil)
 	db.Migrate()
 }
 
@@ -24,7 +24,7 @@ func init() {
 		panic("Error in Loading Env Variable")
 	}
 
-	connectDb()
+	// connectDb()
 }
 
 func main() {
@@ -34,7 +34,15 @@ func main() {
 	schedulerFreq := 3 * time.Second
 	executorFreq := 5 * time.Second
 
-	schedulerx.NewSchedulerX(ctx, schedulerFreq, executorFreq)
+	schedulerx.NewSchedulerX(ctx, schedulerFreq, executorFreq, &schedulerx.DBConfig{
+		Config: db.DBConfig{
+			Host:         os.Getenv("DB_HOST"),
+			Port:         os.Getenv("DB_PORT"),
+			Username:     os.Getenv("DB_USERNAME"),
+			Password:     os.Getenv("DB_PASSWORD"),
+			DatabaseName: os.Getenv("DB_NAME"),
+		},
+	})
 
 	router := server.ServerRoutes()
 
