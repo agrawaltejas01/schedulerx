@@ -18,6 +18,14 @@ import (
 	schedulerService "github.com/agrawaltejas01/schedulerx/internal/schedulerx/scheduler/service"
 )
 
+type DBConfig struct {
+	Username     string `json:"username"`
+	Password     string `json:"password"`
+	Host         string `json:"host"`
+	Port         string `json:"port"`
+	DatabaseName string `json:"database_name"`
+}
+
 type SchedulerX struct {
 	scheduler schedulerInterface.SchedulerService
 	executor  executorInterface.ExecutorService
@@ -70,8 +78,15 @@ func startExecutor(ctx context.Context, freq time.Duration,
 
 }
 
-func NewSchedulerX(ctx context.Context, schedulerFreq, executorFreq time.Duration) *SchedulerX {
-	db.Connect()
+func NewSchedulerX(ctx context.Context, schedulerFreq, executorFreq time.Duration, dbConfig *DBConfig) *SchedulerX {
+	connectionDbConfig := db.DBConfig{
+		Host:         dbConfig.Host,
+		Port:         dbConfig.Port,
+		Username:     dbConfig.Username,
+		Password:     dbConfig.Password,
+		DatabaseName: dbConfig.DatabaseName,
+	}
+	db.Connect(&connectionDbConfig)
 	db.Migrate()
 	instance := &SchedulerX{
 		scheduler:     schedulerService.NewService(),
